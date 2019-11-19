@@ -16,14 +16,14 @@ class Item extends Component {
         {/*if there is an img, img expression shows up */}
         <Title>
           <Link href={{ pathname: "/item", query: { id: item.id } }}>
-            {item.title}
+            <a>{item.title}</a>
           </Link>
         </Title>
         <PriceTag>{formatMoney(item.price)}</PriceTag>
         <p>{item.description}</p>
         <div className="buttonList">
           <Link href={{ pathname: "/update", query: { id: item.id } }}>
-            <a> Edit</a>
+            <a> Edit ✏️ </a>
           </Link>
           <button>Add to Cart</button>
           <button>Delete</button>
