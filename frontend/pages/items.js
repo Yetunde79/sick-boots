@@ -1,7 +1,3 @@
-const Items = props => (
-  <div>
-    <p>hi</p>
-  </div>
-);
+import Items from "./index";
 
 export default Items;
