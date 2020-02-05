@@ -7,9 +7,10 @@ const db = require("./db");
 
 const server = createServer();
 
-//TODO: use express middleware to handle cookies (JWT)
+// using express middleware to handle cookies (JWT)
 server.express.use(cookieParser());
-//TODO: use express middleware to populate current user
+
+// using express middleware to populate current user
 server.express.use((req, res, next) => {
   const { token } = req.cookies;
   if (token) {
@@ -19,6 +20,7 @@ server.express.use((req, res, next) => {
   }
   next();
 });
+
 server.start(
   {
     cors: {

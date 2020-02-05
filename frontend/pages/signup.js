@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SignUp from "../components/Signup";
+import SignIn from "../components/Signin";
 import styled from "styled-components";
 
 const Columns = styled.div`
@@ -11,8 +12,7 @@ const Columns = styled.div`
 const SignUpPage = props => (
   <Columns>
     <SignUp />
-    <SignUp />
-    <SignUp />
+    <SignIn />
   </Columns>
 );
 
