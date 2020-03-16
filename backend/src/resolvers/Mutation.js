@@ -91,6 +91,10 @@ const Mutations = {
     });
     // 5. Return the user
     return user;
+  },
+  signout(parent, args, ctx, info) {
+    ctx.response.clearCookie("token"); //clearing token from index
+    return { message: "Goodbye" };
   }
 };
 
