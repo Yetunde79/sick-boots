@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { randomBytes } = require("crypto");
 const { promisify } = require("util");
+const { transport, makeANiceEmail } = require("../mail");
 
 const Mutations = {
   async createItem(parent, args, ctx, info) {
@@ -10,8 +11,8 @@ const Mutations = {
     const item = await ctx.db.mutation.createItem(
       {
         data: {
-          ...args
-        }
+          ...args,
+        },
       },
       info
     );
@@ -28,8 +29,8 @@ const Mutations = {
       {
         data: updates,
         where: {
-          id: args.id
-        }
+          id: args.id,
+        },
       },
       info
     );
@@ -57,8 +58,8 @@ const Mutations = {
         data: {
           ...args,
           password,
-          permissions: { set: ["USER"] }
-        }
+          permissions: { set: ["USER"] },
+        },
       },
       info
     );
@@ -67,7 +68,7 @@ const Mutations = {
     //we set the jwt as a cookie on the response
     ctx.response.cookie("token", token, {
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 //24hrs
+      maxAge: 1000 * 60 * 60 * 24, //24hrs
     });
     //return the user to the browser
     return user;
@@ -89,7 +90,7 @@ const Mutations = {
     // 4. Set the cookie with the token
     ctx.response.cookie("token", token, {
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 365
+      maxAge: 1000 * 60 * 60 * 24 * 365,
     });
     // 5. Return the user
     return user;
@@ -110,12 +111,23 @@ const Mutations = {
     const resetTokenExpiry = Date.now() + 3600000; //1 hour from now
     const res = await ctx.db.mutation.updateUser({
       where: { email: args.email },
-      data: { resetToken, resetTokenExpiry }
+      data: { resetToken, resetTokenExpiry },
     });
-    console.log(res);
 
-    return { message: "Thanks!" };
     //email them that reset token
+    const mailRes = await transport.sendMail({
+      from: "ysolaadebayo@gmail.com",
+      to: user.email,
+      subject: "Your Password Reset Token",
+      html: makeANiceEmail(
+        `Your Password reset Token is here! \n\n
+        <a href="${
+          process.env.FRONTEND_URL
+        }/reset?resetToken=${resetToken}">Click here to reset</a>`
+      ),
+    });
+    //return message
+    return { message: "Thanks!" };
   },
 
   async resetPassword(parent, args, ctx, info) {
@@ -128,8 +140,8 @@ const Mutations = {
       //we use users bcse resettoken isnt unique
       where: {
         resetToken: args.resetToken,
-        resetTokenExpiry_gte: Date.now() - 3600000 //gte=greater or than equal to. we check the expiry is within an hour
-      }
+        resetTokenExpiry_gte: Date.now() - 3600000, //gte=greater or than equal to. we check the expiry is within an hour
+      },
     });
 
     if (!user) {
@@ -144,19 +156,19 @@ const Mutations = {
       data: {
         password,
         resetToken: null,
-        resetTokenExpiry: null
-      }
+        resetTokenExpiry: null,
+      },
     });
     //generate jwt
     const token = jwt.sign({ userId: updatedUser.id }, process.env.APP_SECRET);
     //set the jwt cookie
     ctx.response.cookie("token", token, {
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 //24hrs
+      maxAge: 1000 * 60 * 60 * 24, //24hrs
     });
     //return the new user
     return updatedUser;
-  }
+  },
 };
 
 module.exports = Mutations;
