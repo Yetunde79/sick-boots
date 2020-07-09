@@ -42,11 +42,12 @@ type Query {
   item(where: ItemWhereUniqueInput!): Item
   itemsConnection(where: ItemWhereInput): ItemConnection
   me: User
+  users: [User]!
 }
 
 type User {
   id: ID!
   email: String!
   name: String!
-  permissions: [Permission!]
+  permissions: [Permission!]!
 }

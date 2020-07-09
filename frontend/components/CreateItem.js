@@ -28,48 +28,48 @@ const CREATE_ITEM_MUTATION = gql`
 
 class CreateItem extends Component {
   state = {
-    title: "Cool Shoes",
-    description: "I love those Context",
-    image: "dog.jpg",
-    largeImage: "large-dog.jpg",
-    price: 1000
+    title: "",
+    description: "",
+    image: "",
+    largeImage: "",
+    price: 0,
   };
 
-  handleChange = e => {
+  handleChange = (e) => {
     const { name, type, value } = e.target;
     const val = type === "number" ? parseFloat(value) : value;
     this.setState({ [name]: val });
   };
 
-   uploadFile = async e => {
+  uploadFile = async (e) => {
     console.log("upload");
     const files = e.target.files;
     const data = new FormData();
-    data.append('file', files[0]);
-    data.append('upload_preset', 'sick_fit');
+    data.append("file", files[0]);
+    data.append("upload_preset", "sick_fit");
 
-    const res = await fetch('https://api.cloudinary.com/v1_1/doczelibv/image/upload',
-    {
-      method: 'POST',
-      body: data
-    })
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/doczelibv/image/upload",
+      {
+        method: "POST",
+        body: data,
+      }
+    );
 
     const file = await res.json();
 
-    console.log(file);
-
     this.setState({
-      image: file.secure_url, 
-      largeImage: file.eager[0].secure_url
-      })
+      image: file.secure_url,
+      largeImage: file.eager[0].secure_url,
+    });
   };
 
   render() {
     return (
       <Mutation mutation={CREATE_ITEM_MUTATION} variables={this.state}>
-        {(createItem, { loading, error, called, data }) => (
+        {(createItem, { loading, error }) => (
           <Form
-            onSubmit={async e => {
+            onSubmit={async (e) => {
               //stop the form from submitting
               e.preventDefault();
               //call the mutation
@@ -78,7 +78,7 @@ class CreateItem extends Component {
               console.log(res);
               Router.push({
                 pathname: "/item",
-                query: { id: res.data.createItem.id }
+                query: { id: res.data.createItem.id },
               });
             }}
           >
@@ -94,7 +94,13 @@ class CreateItem extends Component {
                   required
                   onChange={this.uploadFile}
                 />
-                {this.state.image && <img src={this.state.image} width="200" alt="Upload preview" />}
+                {this.state.image && (
+                  <img
+                    src={this.state.image}
+                    width="200"
+                    alt="Upload preview"
+                  />
+                )}
               </label>
               <label htmlFor="title">
                 Title
